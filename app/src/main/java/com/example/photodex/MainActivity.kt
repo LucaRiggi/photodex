@@ -17,4 +17,3 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
         }
     }
-}

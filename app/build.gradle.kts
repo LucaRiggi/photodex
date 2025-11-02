@@ -59,6 +59,7 @@ dependencies {
     implementation(libs.room.ktx)
     implementation(libs.navigation.fragment.ktx)
     implementation(libs.navigation.ui.ktx)
+    implementation(libs.androidx.fragment)
     kapt(libs.room.compiler)
     implementation("androidx.recyclerview:recyclerview:1.3.1")
     implementation(libs.kotlinx.coroutines.core)
