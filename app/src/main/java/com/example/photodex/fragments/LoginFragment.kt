@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.text.KeyboardOptions
@@ -19,6 +20,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModel
@@ -29,6 +31,12 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import java.io.IOException
+
+// ----- Enum to switch between screen -----
+enum class Mode {
+    LOGIN,
+    REGISTER
+}
 
 // ----- ViewModel -----
 
@@ -68,6 +76,7 @@ fun LoginScreen(
 
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
+    var mode by remember { mutableStateOf(Mode.LOGIN) }
 
     Scaffold(
         topBar = {
@@ -102,10 +111,30 @@ fun LoginScreen(
                 visualTransformation = PasswordVisualTransformation()
             )
             Spacer(Modifier.height(24.dp))
+            if (mode == Mode.REGISTER) {
+                OutlinedTextField(
+                    value = password,
+                    onValueChange = { password = it },
+                    label = { Text("Confirm Password") },
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                    visualTransformation = PasswordVisualTransformation()
+                )
+                Spacer(Modifier.height(24.dp))
+            }
+            Text(
+                text = if (mode == Mode.LOGIN) "Don't have an account? Register" else "Already have an account? Log in",
+                color = MaterialTheme.colorScheme.primary,
+                textDecoration = TextDecoration.Underline,
+                modifier = Modifier.clickable {
+                    mode = if (mode == Mode.LOGIN) Mode.REGISTER else Mode.LOGIN
+                }
+            )
+            Spacer(Modifier.height(24.dp))
             Button(onClick = {
 
             }) {
-                Text("Login!")
+                Text(if (mode == Mode.LOGIN) "Login!" else "Register!")
             }
 
             Spacer(Modifier.height(24.dp))
