@@ -1,5 +1,7 @@
 package com.example.myapplication.fragments
 
+import UserRepository
+import com.example.photodex.R
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -23,10 +25,14 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.fragment.findNavController
+import com.example.photodex.data.database.AppDatabase
+import com.example.photodex.viewmodel.LoginViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -38,12 +44,6 @@ enum class Mode {
     REGISTER
 }
 
-// ----- ViewModel -----
-
-class LoginViewModel(
-) : ViewModel() {
-
-}
 
 
 class LoginFragment : Fragment() {
@@ -57,7 +57,9 @@ class LoginFragment : Fragment() {
                 MaterialTheme {
                     LoginScreen (
                         vm = viewModel,
-                        onSuccess = {}
+                        onSuccess = {
+                            findNavController().navigate(R.id.action_loginFragment_to_homeFragment)
+                        }
                     )
                 }
             }
@@ -73,11 +75,18 @@ fun LoginScreen(
     vm: LoginViewModel,
     onSuccess: () -> Unit
 ) {
+    val isLoading by vm.isLoading.collectAsState()
+    val errorMessage by vm.errorMessage.collectAsState()
+    val loginSuccess by vm.loginSuccess.collectAsState()
 
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
+    var confirmation by remember { mutableStateOf("") }
     var mode by remember { mutableStateOf(Mode.LOGIN) }
 
+    if (loginSuccess) {
+        onSuccess()
+    }
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
@@ -113,8 +122,8 @@ fun LoginScreen(
             Spacer(Modifier.height(24.dp))
             if (mode == Mode.REGISTER) {
                 OutlinedTextField(
-                    value = password,
-                    onValueChange = { password = it },
+                    value = confirmation,
+                    onValueChange = { confirmation = it },
                     label = { Text("Confirm Password") },
                     singleLine = true,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
@@ -131,10 +140,32 @@ fun LoginScreen(
                 }
             )
             Spacer(Modifier.height(24.dp))
+            // show error message if there is
+            if (errorMessage != null) {
+                Text(
+                    // !! is safe here
+                    text = errorMessage!!,
+                    color = MaterialTheme.colorScheme.error,
+                    textAlign = TextAlign.Center
+                )
+                Spacer(Modifier.height(24.dp))
+            }
             Button(onClick = {
-
+                if (mode == Mode.LOGIN) {
+                    vm.login(email, password)
+                } else {
+                    vm.register(email, password, confirmation)
+                }
             }) {
-                Text(if (mode == Mode.LOGIN) "Login!" else "Register!")
+                // show cool loading bar if loading (https://developer.android.com/develop/ui/compose/components/progress)
+                if (isLoading) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(24.dp),
+                        color = MaterialTheme.colorScheme.onPrimary
+                    )
+                } else {
+                    Text(if (mode == Mode.LOGIN) "Login!" else "Register!")
+                }
             }
 
             Spacer(Modifier.height(24.dp))

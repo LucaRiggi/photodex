@@ -6,6 +6,14 @@ import kotlinx.coroutines.flow.Flow
 class UserRepository(private val userDao: UserDAO) {
     fun getAllUsers(): Flow<List<User>> = userDao.getAllUsers()
 
+    suspend fun getUserByEmail(email: String): User? {
+        return userDao.getUserByEmail(email)
+    }
+
+    suspend fun loginUser(email: String, password: String): User? {
+        return userDao.loginUser(email, password)
+    }
+    
     suspend fun insertUser(user: User) {
         userDao.insert(user)
     }
