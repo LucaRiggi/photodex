@@ -16,7 +16,6 @@ import kotlinx.coroutines.launch
 class LoginViewModel(application: Application) : AndroidViewModel(application) {
     private val repository: UserRepository
 
-    // STATES (https://developer.android.com/topic/libraries/architecture/viewmodel)
     private val _loginSuccess = MutableStateFlow(false)
     val loginSuccess: StateFlow<Boolean> = _loginSuccess
 
