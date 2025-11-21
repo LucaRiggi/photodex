@@ -53,6 +53,10 @@ dependencies {
     implementation(libs.material)
     implementation(libs.androidx.constraintlayout)
     implementation(libs.androidx.navigation.fragment.ktx)
+    // 🚨🚨🚨 AI ALERT 🚨🚨🚨
+    // AI was used to figure out coil dependency and find the appropriate version
+    implementation("io.coil-kt:coil-compose:2.7.0")
+    // 🚨🚨🚨 AI ALERT END 🚨🚨🚨
     implementation(libs.androidx.navigation.ui.ktx)
     implementation(libs.androidx.preference)
     implementation(libs.room.runtime)
@@ -62,6 +66,7 @@ dependencies {
     implementation(libs.androidx.fragment)
     implementation(libs.androidx.navigation.navigation.fragment.ktx)
     implementation(libs.androidx.navigation.navigation.ui.ktx)
+    implementation(libs.androidx.navigation.compose)
     kapt(libs.room.compiler)
     implementation("androidx.recyclerview:recyclerview:1.3.1")
     implementation(libs.kotlinx.coroutines.core)
