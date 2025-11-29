@@ -5,6 +5,8 @@ plugins {
     alias(libs.plugins.kotlin.android)
     //Kotlin annotation processor plugin for Room
     id("org.jetbrains.kotlin.kapt")
+    id("org.jetbrains.kotlin.plugin.serialization")
+    alias(libs.plugins.compose.compiler)
 }
 
 android {
@@ -43,7 +45,6 @@ android {
     }
 
     composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.3"
     }
 }
 
@@ -94,6 +95,9 @@ dependencies {
     // OkHttp (client + logging)
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
     implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
+
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")
+
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

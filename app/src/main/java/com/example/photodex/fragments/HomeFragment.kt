@@ -13,12 +13,14 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarDefaults
@@ -40,19 +42,23 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
+import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.toRoute
 import com.example.photodex.R
 import com.example.photodex.fragments.HomeScreen.Favourites
 import com.example.photodex.fragments.HomeScreen.Home
-import com.example.photodex.viewmodel.LoginViewModel
+import com.example.photodex.fragments.PictureDetail
 import com.example.photodex.viewmodel.NetworkViewModel
+import kotlinx.serialization.Serializable
+
 
 class HomeFragment : Fragment() {
 
-    private val viewModel: LoginViewModel by viewModels()
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
@@ -68,7 +74,12 @@ class HomeFragment : Fragment() {
 }
 
 // ----- Compose UI -----
-
+@Serializable
+object HomeRoute
+@Serializable
+object FavouritesRoute
+@Serializable
+data class DetailRoute(val id: Int)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
@@ -78,6 +89,19 @@ fun HomeScreen(
     val startDestination = Destination.HOME
     var selectedDestination by rememberSaveable { mutableIntStateOf(startDestination.ordinal) }
     val isNetworkAvailable by NetworkViewModel.isNetworkAvailable.collectAsState()
+
+    // 🚨🚨🚨 AI ALERT 🚨🚨🚨
+    // I couldn't get the screen to update when trying to get current nav route from backstack, docs didn't cover my case
+    // this is clanker's suggestion (just get as state)
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+    val currentDestination = navBackStackEntry?.destination
+    // 🚨🚨🚨 AI ALERT END 🚨🚨🚨
+    val isMainScreen = currentDestination?.hasRoute<HomeRoute>() == true ||
+            currentDestination?.hasRoute<FavouritesRoute>() == true
+
+    val showBackButton = !isMainScreen
+
+
     if (!isNetworkAvailable) {
         NoConnection()
     } else {
@@ -91,7 +115,14 @@ fun HomeScreen(
                             fontWeight = FontWeight.Bold
                         )
                     },
-
+                    // back button
+                    navigationIcon = {
+                        if (showBackButton) {
+                            IconButton(onClick = {navController.navigateUp()}) {
+                                Icon(imageVector = Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                            }
+                        }
+                    },
                     )
             },
             bottomBar = {
@@ -120,11 +151,19 @@ fun HomeScreen(
                 startDestination = Destination.HOME.route,
                 modifier = Modifier.padding(inner)
             ) {
-                composable(Destination.HOME.route) {
+                composable<HomeRoute> {
                     Home()
                 }
-                composable(Destination.Favourites.route) {
-                    Favourites()
+
+                composable<FavouritesRoute> {
+                    Favourites(onNavigate = { id ->
+                        navController.navigate(DetailRoute(id = id))
+                    })
+                }
+
+                composable<DetailRoute> { backStackEntry ->
+                    val detail: DetailRoute = backStackEntry.toRoute()
+                    PictureDetail(id = detail.id, {navController.navigateUp()})
                 }
             }
 
@@ -136,13 +175,13 @@ fun HomeScreen(
 
 //routing via compose
 enum class Destination(
-    val route: String,
+    val route: Any,
     val label: String,
     val icon: ImageVector,
     val contentDescription: String
 ) {
-    HOME("home", "Home", Icons.Default.Home, "Home"),
-    Favourites("favourites", "Favourites", Icons.Default.Favorite, "Favourites"),
+    HOME(HomeRoute, "Home", Icons.Default.Home, "Home"),
+    Favourites(FavouritesRoute, "Favourites", Icons.Default.Favorite, "Favourites"),
 }
 
 @Composable
