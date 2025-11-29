@@ -5,6 +5,8 @@ plugins {
     alias(libs.plugins.kotlin.android)
     //Kotlin annotation processor plugin for Room
     id("org.jetbrains.kotlin.kapt")
+    id("org.jetbrains.kotlin.plugin.serialization")
+    alias(libs.plugins.compose.compiler)
 }
 
 android {
@@ -43,7 +45,6 @@ android {
     }
 
     composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.3"
     }
 }
 
@@ -53,6 +54,10 @@ dependencies {
     implementation(libs.material)
     implementation(libs.androidx.constraintlayout)
     implementation(libs.androidx.navigation.fragment.ktx)
+    // 🚨🚨🚨 AI ALERT 🚨🚨🚨
+    // AI was used to figure out coil dependency and find the appropriate version
+    implementation("io.coil-kt:coil-compose:2.7.0")
+    // 🚨🚨🚨 AI ALERT END 🚨🚨🚨
     implementation(libs.androidx.navigation.ui.ktx)
     implementation(libs.androidx.preference)
     implementation(libs.room.runtime)
@@ -62,6 +67,7 @@ dependencies {
     implementation(libs.androidx.fragment)
     implementation(libs.androidx.navigation.navigation.fragment.ktx)
     implementation(libs.androidx.navigation.navigation.ui.ktx)
+    implementation(libs.androidx.navigation.compose)
     kapt(libs.room.compiler)
     implementation("androidx.recyclerview:recyclerview:1.3.1")
     implementation(libs.kotlinx.coroutines.core)
@@ -89,6 +95,9 @@ dependencies {
     // OkHttp (client + logging)
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
     implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
+
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")
+
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
