@@ -1,9 +1,13 @@
 package com.example.photodex
 
 import android.content.IntentFilter
+import android.content.pm.PackageManager
 import android.net.ConnectivityManager
+import android.os.Build
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import com.example.photodex.databinding.ActivityMainBinding
 import com.example.photodex.receivers.NetworkReceiver
 
@@ -17,6 +21,7 @@ class MainActivity : AppCompatActivity() {
         //Nav Binding
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        requestNotificationPermission()
         }
 
     // 🚨🚨🚨 AI ALERT 🚨🚨🚨
@@ -38,5 +43,21 @@ class MainActivity : AppCompatActivity() {
     }
 
     // 🚨🚨🚨 AI ALERT END 🚨🚨🚨
+
+    private fun requestNotificationPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ContextCompat.checkSelfPermission(
+                    this,
+                    android.Manifest.permission.POST_NOTIFICATIONS
+                ) != PackageManager.PERMISSION_GRANTED
+            ) {
+                ActivityCompat.requestPermissions(
+                    this,
+                    arrayOf(android.Manifest.permission.POST_NOTIFICATIONS),
+                    100
+                )
+            }
+        }
+    }
     }
 

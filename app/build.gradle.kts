@@ -68,6 +68,7 @@ dependencies {
     implementation(libs.androidx.navigation.navigation.fragment.ktx)
     implementation(libs.androidx.navigation.navigation.ui.ktx)
     implementation(libs.androidx.navigation.compose)
+    implementation(libs.androidx.work.runtime.ktx)
     kapt(libs.room.compiler)
     implementation("androidx.recyclerview:recyclerview:1.3.1")
     implementation(libs.kotlinx.coroutines.core)
