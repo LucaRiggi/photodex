@@ -1,5 +1,6 @@
 package com.example.photodex.fragments
 
+import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -18,10 +19,18 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.work.Constraints
+import androidx.work.Data
+import androidx.work.ExistingWorkPolicy
+import androidx.work.NetworkType
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.WorkManager
 import coil.compose.AsyncImage
 import com.example.photodex.viewmodel.FavouriteViewModel
+import com.example.photodex.workers.DownloadWorkManager
 
 @Composable
 fun PictureDetail(
@@ -41,6 +50,7 @@ fun PictureDetail(
         }
     } else {
         val currentPicture = picture!!
+        var context = LocalContext.current
 
         Column(
             modifier = Modifier
@@ -57,7 +67,34 @@ fun PictureDetail(
                 )
 
                 Button(
-                    onClick = {}
+                    onClick = {
+                        /**
+                         * SOURCE: https://www.droidcon.com/2022/03/10/step-by-step-guide-to-download-files-with-workmanager/
+                         * and classwork
+                         */
+                        val data = Data.Builder()
+                        data.apply {
+                            putString(DownloadWorkManager.FileParams.KEY_FILE_NAME, "${currentPicture.name}.jpg")
+                            putString(DownloadWorkManager.FileParams.KEY_FILE_URL, currentPicture.imageLink)
+                            putString(DownloadWorkManager.FileParams.KEY_FILE_TYPE, "jpg")
+                        }
+
+                        val syncRequest = OneTimeWorkRequestBuilder<DownloadWorkManager>()
+                            .setInputData(data.build())
+                            .setConstraints(Constraints.Builder()
+                                .setRequiredNetworkType(NetworkType.CONNECTED)
+
+                                .build())
+                            .build()
+
+                        WorkManager.getInstance(context).enqueueUniqueWork(
+                            "file_sync_retry",
+                            ExistingWorkPolicy.REPLACE,
+                            syncRequest
+                        )
+
+                        Toast.makeText(context, "Downloading...", Toast.LENGTH_SHORT).show()
+                    }
                 ) {
                     Text("Download")
                     Spacer(modifier = Modifier.weight(1f))

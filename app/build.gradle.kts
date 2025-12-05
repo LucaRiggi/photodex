@@ -68,6 +68,7 @@ dependencies {
     implementation(libs.androidx.navigation.navigation.fragment.ktx)
     implementation(libs.androidx.navigation.navigation.ui.ktx)
     implementation(libs.androidx.navigation.compose)
+    implementation(libs.androidx.work.runtime.ktx)
     kapt(libs.room.compiler)
     implementation("androidx.recyclerview:recyclerview:1.3.1")
     implementation(libs.kotlinx.coroutines.core)
@@ -102,4 +103,6 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
+    testImplementation(kotlin("test"))
+    testImplementation(libs.mockito.kotlin)
 }
